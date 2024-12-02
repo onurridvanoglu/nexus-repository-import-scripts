@@ -3,6 +3,7 @@ from urllib3.exceptions import InsecureRequestWarning
 from typing import List, Dict
 from dataclasses import dataclass
 from requests.auth import HTTPBasicAuth
+import json
 
 # Disable SSL warning for self-signed certificates
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
@@ -84,15 +85,15 @@ def main():
     # Configure your Nexus instances
     old_nexus = NexusConfig(
         url="http://nexus.logo.com.tr:8081/nexus",
-        username="admin",
-        password="admin123",
+        username="username",
+        password="password",
         version=2
     )
 
     new_nexus = NexusConfig(
         url="https://sonarnexus.logo.com.tr:8443",
-        username="onur.ridvanoglu",
-        password="TGByhn8020.",
+        username="username",
+        password="password",
         version=3
     )
 
@@ -101,6 +102,10 @@ def main():
     try:
         # Get repository comparison
         results = comparer.find_unique_repositories()
+
+        # Save results to a JSON file
+        with open('repository_comparison.json', 'w') as f:
+            json.dump(results, f, indent=2)
 
         # Print summary
         print("\n=== Repository Comparison Summary ===")
@@ -112,4 +117,4 @@ def main():
         print(f"Error: {str(e)}")
 
 if __name__ == "__main__":
-    main() 
+    main()
