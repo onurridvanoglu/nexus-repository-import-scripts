@@ -1,13 +1,19 @@
 # Nexus Repository Import Scripts
-## Wut?
-These are bare bones bash scripts to import a Nexus 2 Maven, NuGet or npm repository (and likely other file system based repos)
-into Nexus Repository 3, plus some Python scripts to compare repositories between Nexus 2 and 3.
-### Wut does it do?
-* Imports artifacts into a Nexus Repository 3 Maven2, NuGet or npm hosted repo
-* Compares repositories between Nexus 2 and Nexus 3 instances
-* Shows you what repos exist where
-### Wut does it not do?
-Literally anything else. You want security? Better set it up yourself.
+
+## What is this?
+These are bash scripts to safely import artifacts from Nexus 2 into Nexus Repository 3, plus Python scripts to compare repositories between Nexus 2 and 3. The scripts include overwrite prevention to protect existing artifacts.
+
+### Features
+* Imports artifacts into Nexus Repository 3 (Maven2, NuGet, or npm hosted repos)
+* Prevents overwriting of existing artifacts
+* Compares repositories between Nexus 2 and 3 instances
+* Shows repository differences and artifact counts
+* Provides detailed success/failure/skip reporting
+
+### What it doesn't do
+* Modify existing artifacts
+* Transfer repository permissions
+* Transfer repository configurations
 
 ## Usage
 
@@ -21,6 +27,12 @@ Parameters:
 - `-p`: Password (default: admin123)
 - `-r`: Repository URL (modify according to your setup)
 
+The script will:
+- Check if each artifact already exists
+- Skip existing artifacts (preventing overwrites)
+- Upload only new artifacts
+- Provide a summary of uploaded, skipped, and failed artifacts
+
 ### NuGet Import
 Navigate to the directory containing your NuGet packages and run:
 ```bash
@@ -29,6 +41,12 @@ Navigate to the directory containing your NuGet packages and run:
 Parameters:
 - `-k`: API key from Nexus Repository (required)
 - `-r`: Repository URL (modify according to your setup)
+
+The script will:
+- Verify if each package version exists
+- Skip existing packages
+- Upload only new packages
+- Show a summary of results
 
 ### npm Import
 First, login to your npm registry:
@@ -43,9 +61,15 @@ Then navigate to your npm packages directory and run:
 Parameters:
 - `-r`: Repository URL (modify according to your setup)
 
+The script will:
+- Check package versions before upload
+- Skip existing versions
+- Upload only new packages
+- Provide detailed upload statistics
+
 Note: Some packages might fail due to extra build steps. You'll need to investigate and fix those cases individually.
 
-### Repository Comparison Tool
+### Repository Comparison Tools
 
 #### Requirements
 - Python 3.x
@@ -54,42 +78,41 @@ Note: Some packages might fail due to extra build steps. You'll need to investig
 pip install requests
 ```
 
-#### Setup and Usage
-1. Update the Nexus configurations in `compare_nexus_repos.py` with your URLs and credentials
-2. Run the comparison:
-```bash
-python compare_nexus_repos.py
-```
-
-The script will generate a JSON file containing:
-- Repositories only in old Nexus
-- Repositories only in new Nexus
-- Repositories that exist in both
-
-Note: The comparison results file is gitignored to prevent repository information leakage.
-
-## Important Notes
-- Ensure your Nexus instances are reachable
-- Verify your credentials are correct
-- Don't commit sensitive information to git
-- The comparison results file is excluded from git to protect your repository information
-
-### Repository Comparison Script
-* Python script that tells you what repos you got where
+#### Repository Comparison Script
+* Compares repositories between Nexus 2 and 3
 * Requirements:
   * Python 3.x
   * requests library (`pip install requests`)
 * Usage:
-  * Update the Nexus configs in `compare_nexus_repos.py` with your URLs and creds
-  * Run it: `python compare_nexus_repos.py`
-  * Get a nice JSON file showing:
+  * Update the Nexus configs in `nexus_config.json`
+  * Run: `python compare_nexus_repos.py`
+  * Get a JSON file showing:
     * Repos only in old Nexus
     * Repos only in new Nexus
     * Repos that exist in both
-  * The comparison results file is gitignored cuz nobody wants your repo list in their repo
+
+#### Artifact Comparison Script
+* Compares artifacts within common repositories
+* Usage:
+  * Configure `nexus_config.json` with your server details
+  * Run: `python compare_nexus_artifacts.py`
+  * Generates detailed reports in `comparison_results/`:
+    * artifact_comparison_details.json
+    * artifact_comparison_summary.json
+
+## Important Notes
+* Always verify your credentials before running imports
+* Make sure your Nexus instances are reachable
+* The scripts include overwrite protection by default
+* All comparison results are gitignored for security
+* Failed uploads are logged and reported
+* Skipped items (already existing) are tracked and reported
+
+## Security Notes
+* Use read-only accounts for comparison scripts
+* Use minimal-privilege accounts for uploads
+* Don't commit credentials to git
+* The comparison results files are gitignored to prevent repository information leakage
+
 ## Like it?
 Great, buy me a beer.
-## Notes
-* Make sure your Nexus instances are actually reachable
-* Make sure your creds actually work
-* Don't commit sensitive stuff to git (duh)
