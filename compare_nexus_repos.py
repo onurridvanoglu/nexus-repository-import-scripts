@@ -84,14 +84,14 @@ class NexusRepositoryComparer:
 def main():
     # Configure your Nexus instances
     old_nexus = NexusConfig(
-        url="http://nexus.logo.com.tr:8081/nexus",
+        url="REPO_URL",
         username="username",
         password="password",
         version=2
     )
 
     new_nexus = NexusConfig(
-        url="https://sonarnexus.logo.com.tr:8443",
+        url="REPO_URL",
         username="username",
         password="password",
         version=3
